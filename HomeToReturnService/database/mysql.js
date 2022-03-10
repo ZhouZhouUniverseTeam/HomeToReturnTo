@@ -10,7 +10,13 @@ const { config } = require("./config");
 //     password: config.dev.password,
 //     database: config.dev.database
 // }
-const pool = mysql.createPool(config[`${process.env.DB_ENV}`]);
+const pool = mysql.createPool({
+  connectionLimit: 10, // 最大连接数
+  host: "localhost", // 主机
+  user: "root", // 用户名
+  password: "123456aa", // 密码
+  database: "guisu", // 数据库名称
+});
 
 // 创建这个类是因为在文件外部想使用Mysql.query使用query方法，而不是直接mysql();
 class Mysql {
