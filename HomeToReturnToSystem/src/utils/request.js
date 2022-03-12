@@ -2,7 +2,7 @@ import axios from "axios";
 // import store from "@/store";
 // import router from "@/router";
 
-export const baseURL = "http://124.221.170.20:8080";
+export const baseURL = "http://localhost:8080";
 
 // 发送携带token的请求
 const instanceWithToken = axios.create({ baseURL });
