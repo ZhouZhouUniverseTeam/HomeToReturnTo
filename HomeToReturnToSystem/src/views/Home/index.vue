@@ -157,7 +157,7 @@ export default {
       // 初始化加载器，加载场景背景图片
       // let textureCube = new THREE.CubeTextureLoader().load(urls);
       // textureCube.mapping = THREE.CubeRefractionMapping;
-      let sceneBackgroundColor = new THREE.Color(0xffffff)
+      let sceneBackgroundColor = new THREE.Color(0x000000)
       // 创建场景
       scene = new THREE.Scene();
       // 给场景添加背景
@@ -269,7 +269,7 @@ export default {
       const material = new THREE.ShaderMaterial({
 
         uniforms: {
-          color: {value: new THREE.Color(0x2d6a32)},
+          color: {value: new THREE.Color(0x047ed6)},
         },
         vertexShader: document.getElementById('vertexshader').textContent,
         fragmentShader: document.getElementById('fragmentshader').textContent
