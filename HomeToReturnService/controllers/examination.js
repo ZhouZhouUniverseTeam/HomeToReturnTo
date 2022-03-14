@@ -88,12 +88,11 @@ module.exports.addRankingData = async (ctx, next) => {
       await updateRankingScore({ score, uid });
       ctx.body = {
         code: 200,
-        message: "排行榜更新成功",
       };
     } else {
       ctx.body = {
         code: 200,
-        message: "您这次没有您的最高分数高哦",
+        message: "这次答题没有您的最高分数高哦",
       };
     }
   } else {

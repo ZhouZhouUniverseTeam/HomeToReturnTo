@@ -272,10 +272,11 @@ function getRubbishData(props) {
     /*text-indent: 2em;*/
     line-height: 20px;
 
-    .introduce-text {
-      font-size: 20px;
-      font-weight: bolder;
-    }
+  }
+
+  .introduce-text {
+    font-size: 20px;
+    font-weight: bolder;
   }
 }
 </style>

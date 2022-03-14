@@ -1,4 +1,5 @@
 <template>
+  <Loading v-if="!isLoadingEnd"></Loading>
   <div class="provinceRanking">
     <div class="provinceRanking-title">
       <h2>
@@ -68,10 +69,13 @@ import {onMounted, ref} from "vue";
 
 import RightButtonLink from "../../components/RightButtonLink/index.vue"
 
+import Loading from "../../components/Loading/index.vue"
+
 export default {
   name: "index",
   components:{
     RightButtonLink,
+    Loading
   },
   setup() {
     let scene, camera, renderer;
@@ -104,6 +108,8 @@ export default {
         generateGeometry(jsondata);
       });
     }
+
+    let isLoadingEnd = ref(false);
 
     function generateGeometry(jsondata) {
       // 初始化一个地图对象
@@ -189,6 +195,7 @@ export default {
         map.add(province);
       });
       scene.add(map);
+      isLoadingEnd.value = true;
     }
 
     function setController() {
@@ -426,6 +433,7 @@ export default {
       handleHideActiveClass,
       rightButtons,
       rightButtonActiveIndex,
+      isLoadingEnd
     };
   }
 }

@@ -1678,7 +1678,7 @@
         }
         return tl;
     };
-    TCproto.Message = function(text) {
+    TCproto.Index = function(text) {
         var tl = [], i, p, tc = text.split(''), a, t, x, z;
         for(i = 0; i < tc.length; ++i) {
             if(tc[i] != ' ') {
@@ -1834,7 +1834,7 @@
         }
         if(this.noTagsMessage && !taglist.length) {
             i = (this.imageMode && this.imageMode != 'both' ? this.imageMode + ' ': '');
-            taglist = this.Message('No ' + i + 'tags');
+            taglist = this.Index('No ' + i + 'tags');
         }
         this.taglist = taglist;
     };

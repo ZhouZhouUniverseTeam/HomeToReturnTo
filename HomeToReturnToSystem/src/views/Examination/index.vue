@@ -39,9 +39,9 @@
           </div>
           <div class="register-gender">
             <span class="gender">性别：</span>
-            <label for="man" class="man">男</label>
+            <label for="man" class="man">👦</label>
             <input type="radio" name="gender" id="man" value="0" checked>
-            <label for="woman" class="woman">女</label>
+            <label for="woman" class="woman">👧</label>
             <input type="radio" name="gender" id="woman" value="1">
           </div>
 
@@ -118,6 +118,7 @@ import {
 import {GenNonDuplicateID} from "../../assets/js/randomId"
 
 import RightButtonLink from "../../components/RightButtonLink/index.vue"
+import {Message} from "../../components/library/Message";
 
 export default {
   name: "index",
@@ -150,11 +151,11 @@ export default {
         checkUsernameExists(reqParams).then((data) => {
           if (data?.code === 500) {
             localStorage.removeItem('userInfo');
-            alert('用户已过期，请重新注册');
+            Message({type: "error", text: '用户已过期，请重新注册'});
             isShowRegister.value = true;
             return;
           } else if (data?.code === 200) {
-            // alert(JSON.parse(localStorage.getItem('username')) + ' 欢迎回来')
+            Message({type:"success", text: userInfo.value?.username + ' 欢迎回来'})
           }
         })
       } else {
@@ -173,7 +174,7 @@ export default {
 
       let gender = formData.get('gender');
 
-      if (username.trim().length === 0) return alert('昵称不能为空');
+      if (username.trim().length === 0) return Message({type: 'error', text: '昵称不能为空'});
 
       // 生成随机不重复id
       let randomId = GenNonDuplicateID(10)
@@ -183,11 +184,11 @@ export default {
         if (data?.code === 500) {
           // 用户添加失败后
           // 提示用户
-          return alert(data?.message);
+          return Message({type:"error", text: data?.message});
         } else if (data?.code === 200) {
           // 用户添加成功后
           // 提示用户
-          alert(data?.message);
+          Message({type: 'success', text: data?.message});
           // 关闭注册弹框
           isShowRegister.value = false;
           // 把用户名保存到本地，用作第二次进入页面时去数据库查找有没有这个用户
@@ -212,6 +213,12 @@ export default {
 
     // 点击开始答题按钮
     function handleStartingToWork() {
+      if (!userInfo) {
+        isShowRegister.value = true;
+        console.log(111)
+        return;
+      }
+
       isStartingWork.value = true;
       // 获取题目数据
       getQuestionData().then(({data}) => {
@@ -258,7 +265,7 @@ export default {
         }
 
         addRankingData(reqParams).then((data) => {
-          return alert(data?.message);
+          Message({type: 'success', text: data?.message});
         })
 
 
@@ -312,7 +319,9 @@ export default {
     }
 
     function handleHideScoreBox() {
+      // 清空所有状态
       isShowScoreBox.value = false;
+      isShowRanking.value = false;
       questionIndex.value = 0;
       questionList.value = null;
       score.value = 0;
@@ -443,13 +452,13 @@ export default {
   .register {
     position: fixed;
     left: 50%;
-    top: 40%;
+    top: 400px;
     transform: translate(-50%, -50%);
     width: 500px;
     height: 300px;
     background-color: #fff;
     border: 2px solid #000;
-    padding: 20px 10px;
+    padding: 20px 120px;
     box-sizing: border-box;
 
     .register-username {
@@ -477,6 +486,7 @@ export default {
         padding: 3px 10px;
         background-color: #4F9CEE;
         border-radius: 4px;
+        font-size: 20px;
       }
 
       .woman {
@@ -490,14 +500,17 @@ export default {
 
     .buttons {
       position: absolute;
-      right: 0;
+      right: 50%;
       bottom: 0;
+      transform: translate(50%);
       padding: 40px 20px;
 
       .affirm {
         padding: 10px 40px;
         background-color: #4F9CEE;
-        border: 1px solid #000;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
         cursor: pointer;
       }
     }
@@ -621,6 +634,7 @@ export default {
         .answer-wrong {
           text-decoration: line-through;
           color: #999;
+          margin-right: 5px;
         }
 
         .answer-daan {
