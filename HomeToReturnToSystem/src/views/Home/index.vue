@@ -1,6 +1,6 @@
 <template>
   <Loading v-if="!isLoadingEnd"></Loading>
-  <div class="home-page">
+  <div class="home-page" id="home-page">
     <div id="canvas-box"></div>
     <Transition name="detail-box" mode="out-in">
       <div class="rubbish-detail" v-if="isShowDetailBox">
@@ -30,7 +30,7 @@ import {Mesh, MeshLambertMaterial, PlaneGeometry, Raycaster, Vector2} from "thre
 
 // obj加载模型方法
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-import {onMounted, ref} from "vue";
+import {nextTick, onMounted, onUnmounted, ref} from "vue";
 // import "../../../public/models/trash_can/scene.gltf";
 // 引入用户年龄饼图组件
 // import UserAgeDistribute from "./components/userAgeDistribute/index.vue";
@@ -38,7 +38,6 @@ import RubbishDetail from "../../components/RubbishDetail/index.vue";
 import SearchRubbish from "../../components/SearchRubbish/index.vue"
 import RightButtonLink from "../../components/RightButtonLink/index.vue"
 // import Stats from "three/examples/jsm/libs/stats.module";
-
 import Loading from "../../components/Loading/index.vue"
 
 export default {
@@ -179,6 +178,8 @@ export default {
       renderer.setClearColor(0x000000, 1);
       // 模型开启阴影
       renderer.shadowMap.enabled = true;
+      //取消Threejs帧缓冲区数据自动清除功能
+      renderer.autoClear = false;
 
       let cubeMaterial1 = new THREE.MeshLambertMaterial({
         color: 0xffffff,
@@ -215,14 +216,9 @@ export default {
       renderer.domElement.addEventListener("click", onRaycasterClick);
       renderer.domElement.addEventListener('mousemove', onRaycasterMouseMove)
 
+      document.getElementById("canvas-box").innerHTML = '';
       document.getElementById("canvas-box").appendChild(renderer.domElement);
     }
-
-    // function initStats() {
-    //   stats = new Stats();
-    //   stats.setMode(0); //默认的监听fps
-    //   document.body.appendChild(stats.dom);
-    // };
 
     // 初始化相机
     function initCamera() {
@@ -320,32 +316,6 @@ export default {
       );
       mesh.scale.set(0.05, 0.05, 0.05);
       pointLight.add(mesh);
-    }
-
-    // 初始化地板
-    function initGround() {
-      groundGeometry = new PlaneGeometry(800, 500, 10);
-      let groundMaterial = new MeshLambertMaterial({
-        color: 0xffffff,
-        side: THREE.DoubleSide,
-      });
-
-      let groundMesh = new Mesh(groundGeometry, groundMaterial);
-
-      groundMesh.rotateX(Math.PI / -2);
-      groundMesh.position.y = -101;
-      // 开启阴影
-      groundMesh.castShadow = true;
-      // 地面接收阴影
-      groundMesh.receiveShadow = true;
-      groundMesh.name = null;
-      scene.add(groundMesh);
-    }
-
-    // 初始化三维坐标系
-    function axis() {
-      const axis = new THREE.AxesHelper(300);
-      scene.add(axis);
     }
 
     // 加载垃圾桶模型（GLTF格式）
@@ -586,6 +556,9 @@ export default {
 
     // 渲染
     function render() {
+      if (!scene) return;
+        //每次调用render()函数的时候，把上次调用render()执行两次.render()叠加的帧缓冲区数据清除
+      // renderer.clear()
       const timer = -0.0002 * Date.now();
       // 鼠标移动后修改镜头位置
       camera.position.x += (mouseX - camera.position.x) * 0.05;
@@ -665,12 +638,20 @@ export default {
 
     let isLoadingEnd = ref(false);
 
+
     // 组件渲染完成后调用初始化和渲染函数
     onMounted(() => {
-      init();
-      animate();
+        init();
+        animate();
     });
 
+    onUnmounted(() => {
+      // console.log(scene)
+      scene = null;
+      renderer = null;
+      // render(null, document.getElementsByClassName('home-page')[0]);
+      // console.log(document.getElementById('home-page'));
+    })
 
     return {
       isShowDetailBox,

@@ -322,6 +322,7 @@ export default {
       // 清空所有状态
       isShowScoreBox.value = false;
       isShowRanking.value = false;
+      isShowAnswer.value = false;
       questionIndex.value = 0;
       questionList.value = null;
       score.value = 0;

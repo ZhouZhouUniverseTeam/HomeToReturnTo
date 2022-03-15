@@ -202,20 +202,25 @@ function getRubbishData(props) {
     top: 10px;
     width: 50px;
     height: 50px;
-    background-color: aqua;
+    //background-color: aqua;
     text-align: center;
     line-height: 45px;
     font-size: 40px;
-    border: 2px solid yellow;
+    //border: 2px solid yellow;
     border-radius: 50%;
     cursor: pointer;
     user-select: none;
+    color: #000;
+  }
+
+  .close:hover {
+    color: red;
   }
 
   .info-title {
     position: fixed;
     left: 130px;
-    top: 70px;
+    top: 60px;
     color: #000;
     font-size: 26px;
     font-weight: bolder;
@@ -224,12 +229,14 @@ function getRubbishData(props) {
   .info {
     width: 400px;
     height: 300px;
-    /*background-color: blue;*/
+    //background-color: #999;
     color: #000;
     border: 1px solid #000;
+    border-radius: 15px;
     padding-left: 20px;
     padding-top: 20px;
     box-sizing: border-box;
+
 
     & div {
       margin-bottom: 20px;
@@ -256,7 +263,7 @@ function getRubbishData(props) {
   .roll-title {
     position: fixed;
     right: 160px;
-    top: 70px;
+    top: 60px;
     color: #000;
     font-size: 26px;
     font-weight: bolder;
@@ -270,8 +277,7 @@ function getRubbishData(props) {
 
   .introduce {
     /*text-indent: 2em;*/
-    line-height: 20px;
-
+    line-height: 24px;
   }
 
   .introduce-text {

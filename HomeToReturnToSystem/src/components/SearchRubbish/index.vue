@@ -40,6 +40,7 @@ export default {
   border-radius: 20px;
   /*overflow: hidden;*/
   user-select: none;
+  color: #fff;
 
   & input {
     width: 300px;
@@ -51,7 +52,7 @@ export default {
     padding-left: 10px;
     padding-right: 50px;
     background-color: transparent;
-    color: #000;
+    color: #fff;
   }
 
   .leave-for {
@@ -64,7 +65,6 @@ export default {
     text-align: center;
     line-height: 44px;
     border-radius: 10px;
-    color: #000;
     /*background-color: #2d6a32;*/
     /*border-bottom-right-radius: 20px;*/
     /*border-top-right-radius: 20px;*/

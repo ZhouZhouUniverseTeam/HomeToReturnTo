@@ -80,7 +80,6 @@ export default {
   setup() {
     let scene, camera, renderer;
     let controller;
-    let cube;
     let raycaster, mouse, tooltip;
     let lastPick;
     let map;
@@ -94,7 +93,6 @@ export default {
       setRaycaster();
       animate();
       loadMapData();
-      addCube();
       setLight();
       // 监听浏览器可视区变化
       window.onresize = onWindowResize;
@@ -203,13 +201,6 @@ export default {
           camera,
           document.getElementById("map-canvas")
       );
-    }
-
-    function addCube() {
-      const geometry = new THREE.BoxGeometry();
-      const material = new THREE.MeshBasicMaterial({color: 0x50ff22});
-      cube = new THREE.Mesh(geometry, material);
-      scene.add(cube);
     }
 
     // 设置渲染器
