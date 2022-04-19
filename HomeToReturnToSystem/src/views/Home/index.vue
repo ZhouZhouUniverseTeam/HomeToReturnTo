@@ -1,44 +1,61 @@
 <template>
-  <Loading v-if="!isLoadingEnd"></Loading>
-  <div class="home-page" id="home-page">
-    <div id="canvas-box"></div>
-    <Transition name="detail-box" mode="out-in">
-      <div class="rubbish-detail" v-if="isShowDetailBox">
-        <RubbishDetail :currentType="currentType" @closeDetailBox="closeDetailBox" :trashCanColor="trashCanColor"
-                       :rubbishName="rubbishName"/>
+  <div>
+    <Loading v-if="!isLoadingEnd"></Loading>
+    <div class="home-page" id="home-page">
+      <div id="canvas-box"></div>
+      <Transition name="detail-box" mode="out-in">
+        <div class="rubbish-detail" v-if="isShowDetailBox">
+          <RubbishDetail
+            :currentType="currentType"
+            @closeDetailBox="closeDetailBox"
+            :trashCanColor="trashCanColor"
+            :rubbishName="rubbishName"
+          />
+        </div>
+      </Transition>
+
+      <div id="tooltip" ref="tooltip"></div>
+
+      <RightButtonLink
+        v-for="(item, index) in rightButtons"
+        :key="index"
+        :style="{ top: index * 100 + 100 + 'px' }"
+        :class="[rightButtonActiveIndex === index ? 'active' : '']"
+        @mouseenter="handleShowActiveClass(index)"
+        @mouseleave="handleHideActiveClass"
+        :to="item.path"
+      >
+        {{ item.text }}
+      </RightButtonLink>
+
+      <div class="search">
+        <SearchRubbish @openDetailBox="openDetailBox"></SearchRubbish>
       </div>
-    </Transition>
-
-    <div id="tooltip" ref="tooltip"></div>
-
-    <RightButtonLink v-for="(item, index) in rightButtons" :key="index" :style="{top: index * 100 + 100 + 'px'}"
-                     :class="[rightButtonActiveIndex === index ? 'active':'']"
-                     @mouseenter="handleShowActiveClass(index)" @mouseleave="handleHideActiveClass" :to="item.path">
-      {{ item.text }}
-    </RightButtonLink>
-
-    <div class="search">
-      <SearchRubbish @openDetailBox="openDetailBox"></SearchRubbish>
     </div>
   </div>
-
 </template>
 
 <script>
 import * as THREE from "three";
-import {Mesh, MeshLambertMaterial, PlaneGeometry, Raycaster, Vector2} from "three";
+import {
+  Mesh,
+  MeshLambertMaterial,
+  PlaneGeometry,
+  Raycaster,
+  Vector2,
+} from "three";
 
 // obj加载模型方法
-import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-import {nextTick, onMounted, onUnmounted, ref} from "vue";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { nextTick, onMounted, onUnmounted, ref } from "vue";
 // import "../../../public/models/trash_can/scene.gltf";
 // 引入用户年龄饼图组件
 // import UserAgeDistribute from "./components/userAgeDistribute/index.vue";
 import RubbishDetail from "../../components/RubbishDetail/index.vue";
-import SearchRubbish from "../../components/SearchRubbish/index.vue"
-import RightButtonLink from "../../components/RightButtonLink/index.vue"
+import SearchRubbish from "../../components/SearchRubbish/index.vue";
+import RightButtonLink from "../../components/RightButtonLink/index.vue";
 // import Stats from "three/examples/jsm/libs/stats.module";
-import Loading from "../../components/Loading/index.vue"
+import Loading from "../../components/Loading/index.vue";
 
 export default {
   name: "Home",
@@ -47,7 +64,7 @@ export default {
     RubbishDetail,
     SearchRubbish,
     RightButtonLink,
-    Loading
+    Loading,
   },
   setup() {
     // 并非所有浏览器都支持WebGL，事实上，目前只有chrome和firefox可以使用三.js WebGLRenderer。iOS 可与画布渲染器配合使用，尽管 IE9 支持画布，但它不支持工作线程，因此目前不支持。
@@ -62,7 +79,7 @@ export default {
     let height = window.innerHeight;
     // 存储鼠标在浏览器可视区中的坐标
     let mouseY = 0,
-        mouseX = -400;
+      mouseX = -400;
     // 计算浏览器宽高 / 2
     let windowHalfX = window.innerWidth / 2;
     let windowHalfY = window.innerHeight / 2;
@@ -103,15 +120,19 @@ export default {
     let trashCanColor = ref();
 
     // 搜索垃圾名称
-    let rubbishName = ref()
+    let rubbishName = ref();
 
-    let particles, particle, count = 0;
+    let particles,
+      particle,
+      count = 0;
 
-    let SEPARATION = 100, AMOUNTX = 50, AMOUNTY = 50;
+    let SEPARATION = 100,
+      AMOUNTX = 50,
+      AMOUNTY = 50;
 
-    let vertex = document.createElement('script');
-    vertex.type = 'x-shader/x-vertex';
-    vertex.id = 'vertexshader';
+    let vertex = document.createElement("script");
+    vertex.type = "x-shader/x-vertex";
+    vertex.id = "vertexshader";
     vertex.innerHTML = `attribute float scale;
 
 \t\t\tvoid main() {
@@ -122,12 +143,12 @@ export default {
 
 \t\t\t\tgl_Position = projectionMatrix * mvPosition;
 
-\t\t\t}`
+\t\t\t}`;
     document.body.appendChild(vertex);
 
-    let fragment = document.createElement('script');
-    fragment.type = 'x-shader/x-fragment';
-    fragment.id = 'fragmentshader';
+    let fragment = document.createElement("script");
+    fragment.type = "x-shader/x-fragment";
+    fragment.id = "fragmentshader";
     fragment.innerHTML = `uniform vec3 color;
 
 \t\t\tvoid main() {
@@ -136,7 +157,7 @@ export default {
 
 \t\t\t\tgl_FragColor = vec4( color, 1.0 );
 
-\t\t\t}`
+\t\t\t}`;
     document.body.appendChild(fragment);
 
     // 创建初始化函数
@@ -156,7 +177,7 @@ export default {
       // 初始化加载器，加载场景背景图片
       // let textureCube = new THREE.CubeTextureLoader().load(urls);
       // textureCube.mapping = THREE.CubeRefractionMapping;
-      let sceneBackgroundColor = new THREE.Color(0x000000)
+      let sceneBackgroundColor = new THREE.Color(0x000000);
       // 创建场景
       scene = new THREE.Scene();
       // 给场景添加背景
@@ -171,7 +192,7 @@ export default {
       initWave();
 
       // 创建渲染器
-      renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       // 设置渲染器大小
       renderer.setSize(width, height);
       // 设置背景颜色
@@ -214,9 +235,9 @@ export default {
       window.onresize = onWindowResize;
 
       renderer.domElement.addEventListener("click", onRaycasterClick);
-      renderer.domElement.addEventListener('mousemove', onRaycasterMouseMove)
+      renderer.domElement.addEventListener("mousemove", onRaycasterMouseMove);
 
-      document.getElementById("canvas-box").innerHTML = '';
+      document.getElementById("canvas-box").innerHTML = "";
       document.getElementById("canvas-box").appendChild(renderer.domElement);
     }
 
@@ -239,36 +260,35 @@ export default {
       const positions = new Float32Array(numParticles * 3);
       const scales = new Float32Array(numParticles);
 
-      let i = 0, j = 0;
+      let i = 0,
+        j = 0;
 
       for (let ix = 0; ix < AMOUNTX; ix++) {
-
         for (let iy = 0; iy < AMOUNTY; iy++) {
-
-          positions[i] = ix * SEPARATION - ((AMOUNTX * SEPARATION) / 2); // x
+          positions[i] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2; // x
           positions[i + 1] = 0; // y
-          positions[i + 2] = iy * SEPARATION - ((AMOUNTY * SEPARATION) / 2); // z
+          positions[i + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2; // z
 
           scales[j] = 1;
 
           i += 3;
           j++;
-
         }
-
       }
 
       const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
+      geometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(positions, 3)
+      );
+      geometry.setAttribute("scale", new THREE.BufferAttribute(scales, 1));
 
       const material = new THREE.ShaderMaterial({
-
         uniforms: {
-          color: {value: new THREE.Color(0x047ed6)},
+          color: { value: new THREE.Color(0x047ed6) },
         },
-        vertexShader: document.getElementById('vertexshader').textContent,
-        fragmentShader: document.getElementById('fragmentshader').textContent
+        vertexShader: document.getElementById("vertexshader").textContent,
+        fragmentShader: document.getElementById("fragmentshader").textContent,
       });
 
       //
@@ -311,8 +331,8 @@ export default {
       let sphere = new THREE.SphereBufferGeometry(30, 16, 8);
 
       let mesh = new THREE.Mesh(
-          sphere,
-          new THREE.MeshLambertMaterial({color: 0xffffff})
+        sphere,
+        new THREE.MeshLambertMaterial({ color: 0xffffff })
       );
       mesh.scale.set(0.05, 0.05, 0.05);
       pointLight.add(mesh);
@@ -331,11 +351,11 @@ export default {
       model.rotation.y = Math.PI / 2;
       model.scale.x = model.scale.y = model.scale.z = 1.5;
       model.position.y = -100;
-      model.position.x = -150
+      model.position.x = -150;
       // 获取每一个mesh
       model.traverse((child) => {
         if (child.isMesh) {
-          child.name = '可回收垃圾'
+          child.name = "可回收垃圾";
         }
       });
 
@@ -358,13 +378,11 @@ export default {
       // 获取每一个mesh
       model.traverse((child) => {
         if (child.isMesh) {
-          child.name = '有害垃圾'
+          child.name = "有害垃圾";
         }
       });
 
       scene.add(model);
-
-
     }
 
     // 蓝色
@@ -383,7 +401,7 @@ export default {
       // 获取每一个mesh
       model.traverse((child) => {
         if (child.isMesh) {
-          child.name = '湿垃圾'
+          child.name = "湿垃圾";
         }
       });
 
@@ -406,7 +424,7 @@ export default {
       // 获取每一个mesh
       model.traverse((child) => {
         if (child.isMesh) {
-          child.name = '干垃圾'
+          child.name = "干垃圾";
         }
       });
 
@@ -442,10 +460,14 @@ export default {
       intersects = raycaster.intersectObjects(scene.children, true);
 
       if (intersects.length > 0) {
-        if (INTERSECTED != intersects[0].object && intersects[0].object.name !== null) {
+        if (
+          INTERSECTED != intersects[0].object &&
+          intersects[0].object.name !== null
+        ) {
           if (isActive) return;
           isActive = true;
-          if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+          if (INTERSECTED)
+            INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
 
           INTERSECTED = intersects[0].object;
           // 点击模型后，模型高亮设置
@@ -457,12 +479,14 @@ export default {
           // 当前选中的垃圾桶类型
           currentType.value = INTERSECTED.name;
           // 获取垃圾桶颜色
-          trashCanColor.value = INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex)
-
+          trashCanColor.value = INTERSECTED.material.emissive.setHex(
+            INTERSECTED.currentHex
+          );
         }
       } else {
         // 点击其他地方后，模型恢复初始化
-        if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+        if (INTERSECTED)
+          INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
 
         INTERSECTED = null;
         isActive = false;
@@ -475,12 +499,13 @@ export default {
       isShowDetailBox.value = false;
 
       // 点击关闭按钮后，模型高亮取消
-      if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+      if (INTERSECTED)
+        INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
       // 清空当前选中模型
       INTERSECTED = null;
 
       // 清空当前选中状态
-      currentType.value = '';
+      currentType.value = "";
       isActive = false;
     }
 
@@ -490,14 +515,12 @@ export default {
       // 搜索期间不能点击模型
       isActive = false;
       // 给当前选中状态赋值 搜索
-      currentType.value = '搜索';
-      rubbishName.value = value
+      currentType.value = "搜索";
+      rubbishName.value = value;
     }
-
 
     // 设置省份位置
     function setRaycaster() {
-
       // raycaster = new THREE.Raycaster();
       tooltip = document.getElementById("tooltip");
       const onMouseMove = (event) => {
@@ -510,7 +533,7 @@ export default {
 
     // 鼠标移入模型事件(进行鼠标拾取)
     function onRaycasterMouseMove(event) {
-      if (isActive) return
+      if (isActive) return;
       // console.log(event)
       // 将鼠标位置归一化为设备坐标。x 和 y 方向的取值范围是 (-1 to +1)
       raycasterMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -557,7 +580,7 @@ export default {
     // 渲染
     function render() {
       if (!scene) return;
-        //每次调用render()函数的时候，把上次调用render()执行两次.render()叠加的帧缓冲区数据清除
+      //每次调用render()函数的时候，把上次调用render()执行两次.render()叠加的帧缓冲区数据清除
       // renderer.clear()
       const timer = -0.0002 * Date.now();
       // 鼠标移动后修改镜头位置
@@ -571,23 +594,22 @@ export default {
       const positions = particles.geometry.attributes.position.array;
       const scales = particles.geometry.attributes.scale.array;
 
-      let i = 0, j = 0;
+      let i = 0,
+        j = 0;
 
       for (let ix = 0; ix < AMOUNTX; ix++) {
-
         for (let iy = 0; iy < AMOUNTY; iy++) {
+          positions[i + 1] =
+            Math.sin((ix + count) * 0.3) * 50 +
+            Math.sin((iy + count) * 0.5) * 50;
 
-          positions[i + 1] = (Math.sin((ix + count) * 0.3) * 50) +
-              (Math.sin((iy + count) * 0.5) * 50);
-
-          scales[j] = (Math.sin((ix + count) * 0.3) + 1) * 20 +
-              (Math.sin((iy + count) * 0.5) + 1) * 20;
+          scales[j] =
+            (Math.sin((ix + count) * 0.3) + 1) * 20 +
+            (Math.sin((iy + count) * 0.5) + 1) * 20;
 
           i += 3;
           j++;
-
         }
-
       }
 
       particles.geometry.attributes.position.needsUpdate = true;
@@ -605,28 +627,27 @@ export default {
       //更新性能插件
       // stats.update();
 
-      showTip()
+      showTip();
 
       requestAnimationFrame(animate);
     }
-
 
     let rightButtonActiveIndex = ref(false);
 
     let rightButtons = [
       {
-        text: '2021全国各省垃圾产量',
-        path: "/provinceRanking"
+        text: "2021全国各省垃圾产量",
+        path: "/provinceRanking",
       },
       {
-        text: '垃圾分类小课堂',
-        path: "/rubbishClass"
+        text: "垃圾分类小课堂",
+        path: "/rubbishClass",
       },
       {
-        text: '垃圾分类考试',
-        path: "/examination"
-      }
-    ]
+        text: "垃圾分类考试",
+        path: "/examination",
+      },
+    ];
 
     function handleShowActiveClass(index) {
       rightButtonActiveIndex.value = index;
@@ -638,11 +659,10 @@ export default {
 
     let isLoadingEnd = ref(false);
 
-
     // 组件渲染完成后调用初始化和渲染函数
     onMounted(() => {
-        init();
-        animate();
+      init();
+      animate();
     });
 
     onUnmounted(() => {
@@ -651,7 +671,7 @@ export default {
       renderer = null;
       // render(null, document.getElementsByClassName('home-page')[0]);
       // console.log(document.getElementById('home-page'));
-    })
+    });
 
     return {
       isShowDetailBox,
@@ -665,8 +685,8 @@ export default {
       handleHideActiveClass,
       rightButtonActiveIndex,
       rightButtons,
-      isLoadingEnd
-    }
+      isLoadingEnd,
+    };
   },
 };
 </script>

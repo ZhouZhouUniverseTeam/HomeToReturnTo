@@ -2,9 +2,7 @@
   <Loading v-if="!isLoadingEnd"></Loading>
   <div class="provinceRanking">
     <div class="provinceRanking-title">
-      <h2>
-        2021年全国各个省份垃圾产量3D地图展示
-      </h2>
+      <h2>2021年全国各个省份垃圾产量3D地图展示</h2>
     </div>
 
     <div class="map-canvas-container">
@@ -42,18 +40,22 @@
         <div class="color level7"></div>
         <span> >= 200 </span>
       </div>
-      <div>
-        单位：万吨
-      </div>
+      <div>单位：万吨</div>
     </div>
 
     <div class="histogram-canvas-container">
       <canvas id="histogram-canvas" width="400" height="400"></canvas>
     </div>
 
-    <RightButtonLink v-for="(item, index) in rightButtons" :key="index" :style="{top: index * 100 + 100 + 'px'}"
-                     :class="[rightButtonActiveIndex === index ? 'active':'']"
-                     @mouseenter="handleShowActiveClass(index)" @mouseleave="handleHideActiveClass" :to="item.path">
+    <RightButtonLink
+      v-for="(item, index) in rightButtons"
+      :key="index"
+      :style="{ top: index * 100 + 100 + 'px' }"
+      :class="[rightButtonActiveIndex === index ? 'active' : '']"
+      @mouseenter="handleShowActiveClass(index)"
+      @mouseleave="handleHideActiveClass"
+      :to="item.path"
+    >
       {{ item.text }}
     </RightButtonLink>
   </div>
@@ -61,21 +63,21 @@
 
 <script>
 import * as THREE from "three";
-import * as echarts from 'echarts';
+import * as echarts from "echarts";
 // import {Geo} from 'three'
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {geoMercator} from "d3-geo"
-import {onMounted, ref} from "vue";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { geoMercator } from "d3-geo";
+import { onMounted, ref } from "vue";
 
-import RightButtonLink from "../../components/RightButtonLink/index.vue"
+import RightButtonLink from "../../components/RightButtonLink/index.vue";
 
-import Loading from "../../components/Loading/index.vue"
+import Loading from "../../components/Loading/index.vue";
 
 export default {
   name: "index",
-  components:{
+  components: {
     RightButtonLink,
-    Loading
+    Loading,
   },
   setup() {
     let scene, camera, renderer;
@@ -113,9 +115,7 @@ export default {
       // 初始化一个地图对象
       map = new THREE.Object3D();
       // 墨卡托投影转换
-      const projection = geoMercator()
-          .center([104.0, 37.5])
-          .translate([0, 0]);
+      const projection = geoMercator().center([104.0, 37.5]).translate([0, 0]);
 
       jsondata.features.forEach((elem) => {
         // 定一个省份3D对象
@@ -129,8 +129,8 @@ export default {
             const lineMaterial = new THREE.LineBasicMaterial({
               color: "white",
             });
-            const lineGeometry = new THREE.BufferGeometry()
-            const pointsArray = new Array()
+            const lineGeometry = new THREE.BufferGeometry();
+            const pointsArray = new Array();
 
             for (let i = 0; i < polygon.length; i++) {
               const [x, y] = projection(polygon[i]);
@@ -140,17 +140,14 @@ export default {
               shape.lineTo(x, -y);
               pointsArray.push(new THREE.Vector3(x, -y, 5));
             }
-            lineGeometry.setFromPoints(pointsArray)
+            lineGeometry.setFromPoints(pointsArray);
 
             const extrudeSettings = {
               depth: 10,
               bevelEnabled: false,
             };
 
-            const geometry = new THREE.ExtrudeGeometry(
-                shape,
-                extrudeSettings
-            );
+            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
             let tempColor;
 
@@ -198,8 +195,8 @@ export default {
 
     function setController() {
       controller = new OrbitControls(
-          camera,
-          document.getElementById("map-canvas")
+        camera,
+        document.getElementById("map-canvas")
       );
     }
 
@@ -227,10 +224,10 @@ export default {
     function setCamera() {
       // 第二参数就是 长度和宽度比 默认采用浏览器  返回以像素为单位的窗口的内部宽度和高度
       camera = new THREE.PerspectiveCamera(
-          75,
-          window.innerWidth / window.innerHeight,
-          0.1,
-          1000
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
       );
       camera.position.set(0, 0, 120);
       camera.lookAt(scene.position);
@@ -255,10 +252,7 @@ export default {
       // 通过摄像机和鼠标位置更新射线
       raycaster.setFromCamera(mouse, camera);
       // 算出射线 与当场景相交的对象有那些
-      const intersects = raycaster.intersectObjects(
-          scene.children,
-          true
-      );
+      const intersects = raycaster.intersectObjects(scene.children, true);
       // 恢复上一次清空的
       if (lastPick) {
         // this.lastPick.object.material[0].color.set("#2defff");
@@ -266,7 +260,7 @@ export default {
       }
       lastPick = null;
       lastPick = intersects.find(
-          (item) => item.object.material && item.object.material.length === 2
+        (item) => item.object.material && item.object.material.length === 2
       );
       if (lastPick) {
         // this.lastPick.object.material[0].color.set(0xff0000);
@@ -278,7 +272,7 @@ export default {
 
     function showTip() {
       // 显示省份的信息
-      if (lastPick && lastPick.object.parent.properties.name !== '') {
+      if (lastPick && lastPick.object.parent.properties.name !== "") {
         const properties = lastPick.object.parent.properties;
 
         tooltip.textContent = `${properties.name} \n ${properties.rubbishData}万吨`;
@@ -297,25 +291,35 @@ export default {
     }
 
     function histogramInit() {
-      let chartDom = document.getElementById('histogram-canvas');
+      let chartDom = document.getElementById("histogram-canvas");
       let myChart = echarts.init(chartDom);
       let option;
 
       option = {
         title: {
-          text: '2021年城市生活垃圾主产生量排名前十的省份',
-          left:"center",
-          textStyle:{
-            color:"#fff"
-          }
-
+          text: "2021年城市生活垃圾主产生量排名前十的省份",
+          left: "center",
+          textStyle: {
+            color: "#fff",
+          },
         },
         xAxis: {
-          type: 'category',
-          data: ['广东', '江苏', '浙江', '四川', '河南', '山东', '北京','上海', '辽宁', '湖南']
+          type: "category",
+          data: [
+            "广东",
+            "江苏",
+            "浙江",
+            "四川",
+            "河南",
+            "山东",
+            "北京",
+            "上海",
+            "辽宁",
+            "湖南",
+          ],
         },
         yAxis: {
-          type: 'value'
+          type: "value",
         },
         series: [
           {
@@ -323,67 +327,67 @@ export default {
               {
                 value: 1900,
                 itemStyle: {
-                  color: '#a90000'
-                }
+                  color: "#a90000",
+                },
               },
               {
                 value: 1600,
                 itemStyle: {
-                  color: '#a90000'
-                }
+                  color: "#a90000",
+                },
               },
               {
                 value: 1550,
                 itemStyle: {
-                  color: '#a90000'
-                }
+                  color: "#a90000",
+                },
               },
               {
                 value: 1190,
                 itemStyle: {
-                  color: '#fffebe'
-                }
+                  color: "#fffebe",
+                },
               },
               {
                 value: 1050,
                 itemStyle: {
-                  color: '#fffebe'
-                }
+                  color: "#fffebe",
+                },
               },
               {
                 value: 1000,
                 itemStyle: {
-                  color: '#fffebe'
-                }
+                  color: "#fffebe",
+                },
               },
               {
                 value: 790.3,
                 itemStyle: {
-                  color: '#b9e0ed'
-                }
+                  color: "#b9e0ed",
+                },
               },
               {
                 value: 789.9,
                 itemStyle: {
-                  color: '#b9e0ed'
-                }
+                  color: "#b9e0ed",
+                },
               },
               {
                 value: 780,
                 itemStyle: {
-                  color: '#b9e0ed'
-                }
+                  color: "#b9e0ed",
+                },
               },
               {
                 value: 700,
                 itemStyle: {
-                  color: '#b9e0ed'
-                }
+                  color: "#b9e0ed",
+                },
               },
             ],
-            type: 'bar'
-          }
-        ]
+            type: "bar",
+          },
+        ],
       };
 
       option && myChart.setOption(option);
@@ -393,18 +397,18 @@ export default {
 
     let rightButtons = [
       {
-        text: '首页',
-        path: "/home"
+        text: "首页",
+        path: "/home",
       },
       {
-        text: '垃圾分类小课堂',
-        path: "/rubbishClass"
+        text: "垃圾分类小课堂",
+        path: "/rubbishClass",
       },
       {
-        text: '垃圾分类考试',
-        path: "/examination"
-      }
-    ]
+        text: "垃圾分类考试",
+        path: "/examination",
+      },
+    ];
 
     function handleShowActiveClass(index) {
       rightButtonActiveIndex.value = index;
@@ -417,17 +421,17 @@ export default {
     onMounted(() => {
       init();
       histogramInit();
-    })
+    });
 
     return {
       handleShowActiveClass,
       handleHideActiveClass,
       rightButtons,
       rightButtonActiveIndex,
-      isLoadingEnd
+      isLoadingEnd,
     };
-  }
-}
+  },
+};
 </script>
 
 <style scoped lang="less">

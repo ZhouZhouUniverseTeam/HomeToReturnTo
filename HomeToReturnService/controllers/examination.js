@@ -33,7 +33,7 @@ module.exports.addUserNicknameAndGender = async (ctx, next) => {
   let { id, username, gender } = ctx.request.body;
 
   const schema = Joi.object({
-    username: Joi.string().min(3).max(12).required(),
+    username: Joi.string().min(2).max(12).required(),
     gender: Joi.number().required(),
   });
 
@@ -42,7 +42,7 @@ module.exports.addUserNicknameAndGender = async (ctx, next) => {
   } catch (err) {
     return (ctx.body = {
       code: 500,
-      message: err.details[0].message,
+      message: "昵称字数不能小于2并且不能大于12",
     });
   }
 
@@ -59,7 +59,7 @@ module.exports.addUserNicknameAndGender = async (ctx, next) => {
 
   ctx.body = {
     code: 200,
-    message: "用户添加成功",
+    message: "注册成功",
   };
 };
 
